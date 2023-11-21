@@ -29,7 +29,7 @@ def main(dataset_name = None):
     cuda = True if torch.cuda.is_available() else False
     IMAGE_SIZE = np.array([256,256])
     opt.dataset_name = dataset_name
-    files = opt.dataroot+opt.dataset_name+'_'+opt.phase+'.txt'
+    files = opt.dataroot+'/'+opt.phase+'.txt'
     comp_paths = []
     harmonized_paths = []
     mask_paths = []
@@ -130,7 +130,8 @@ def main(dataset_name = None):
     return mse_scores_mu,fmse_scores_mu, psnr_scores_mu,fpsnr_scores_mu
 
 def generstr(dataset_name='ALL'): 
-    datasets = ['HCOCO','HAdobe5k','HFlickr','Hday2night','IHD']
+    datasets = ['HAdobe5k']
+    #datasets = ['HCOCO','HAdobe5k','HFlickr','Hday2night','IHD']
     if dataset_name == 'newALL':
         datasets = ['HCOCO','HAdobe5k','HFlickr','Hday2night','HVIDIT','newIHD']
     for i, item in enumerate(datasets):

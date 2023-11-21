@@ -195,7 +195,7 @@ def generate_training_pairs(newwh, shadow_image, deshadowed_image, instance_mask
 
 
 class ShadowParamDataset(BaseDataset):
-    def initialize(self, opt):
+    def __init__(self, opt):
         self.opt = opt
         self.is_train = self.opt.isTrain
         self.root = opt.dataset_root

@@ -8,6 +8,9 @@ from options.test_options import TestOptions
     
 def main():
     cfg = TestOptions().parse()   # get training options
+    print("CFG:")
+    print(cfg)
+    print(type(cfg))
     cfg.NUM_GPUS = torch.cuda.device_count()
     cfg.serial_batches = True  # disable data shuffling; comment this line if results on randomly chosen images are needed.
     cfg.no_flip = True    # no flip; comment this line if results on flipped images are needed.

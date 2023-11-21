@@ -58,14 +58,15 @@ class IhdDataset(BaseDataset):
         
         if opt.isTrain==True:
             print('loading training file')
-            self.trainfile = opt.dataset_root+opt.dataset_name+'_train.txt'
+            self.trainfile = opt.dataset_root+'/train.txt'
             with open(self.trainfile,'r') as f:
                     for line in f.readlines():
                         self.image_paths.append(os.path.join(opt.dataset_root,'composite_images',line.rstrip()))
+            print(self.image_paths)
         elif opt.isTrain==False:
             #self.real_ext='.jpg'
             print('loading test file')
-            self.trainfile = opt.dataset_root+opt.dataset_name+'_test.txt'
+            self.trainfile = opt.dataset_root+'/test.txt'
             with open(self.trainfile,'r') as f:
                     for line in f.readlines():
                         self.image_paths.append(os.path.join(opt.dataset_root,'composite_images',line.rstrip()))
@@ -92,30 +93,41 @@ class IhdDataset(BaseDataset):
         Step 3: convert your data to a PyTorch tensor. You can use helpder functions such as self.transform. e.g., data = self.transform(image)
         Step 4: return a data point as a dictionary.
         """
-        path = self.image_paths[index]
-        name_parts=path.split('_')
-        mask_path = self.image_paths[index].replace('composite_images','masks')
-        mask_path = mask_path.replace(('_'+name_parts[-1]),'.png')
-        target_path = self.image_paths[index].replace('composite_images','real_images')
-        target_path = target_path.replace(('_'+name_parts[-2]+'_'+name_parts[-1]),'.jpg')
+        found = False
+        while not found:
+          try:
+            path = self.image_paths[index] # Gets a random path FROM ONE WE KNOW TO EXIST
+            name_parts=path.split('_')
+            mask_path = self.image_paths[index].replace('composite_images','masks')
+            mask_path = mask_path.replace(('_'+name_parts[-1]),'.png')
+            target_path = self.image_paths[index].replace('composite_images','real_images')
+            target_path = target_path.replace(('_'+name_parts[-2]+'_'+name_parts[-1]),'.jpg')
 
-        comp = Image.open(path).convert('RGB')
-        real = Image.open(target_path).convert('RGB')
-        mask = Image.open(mask_path).convert('1')
+            #print(f'image path: {path}')
+            #print(f'mask path: {mask_path}')
+            #print(f'target_path: {target_path}')
 
-        if np.random.rand() > 0.5 and self.isTrain:
-            comp, mask, real = tf.hflip(comp), tf.hflip(mask), tf.hflip(real)
+            comp = Image.open(path).convert('RGB')
+            real = Image.open(target_path).convert('RGB')
+            mask = Image.open(mask_path).convert('1')
 
-        if comp.size[0] != self.image_size:
-            comp = tf.resize(comp, [self.image_size, self.image_size])
-            mask = tf.resize(mask, [self.image_size, self.image_size])
-            real = tf.resize(real, [self.image_size,self.image_size])
-        
-        comp = self.transforms(comp)
-        mask = tf.to_tensor(mask)
-        real = self.transforms(real)
+            if np.random.rand() > 0.5 and self.isTrain:
+                comp, mask, real = tf.hflip(comp), tf.hflip(mask), tf.hflip(real)
 
-        inputs=torch.cat([comp,mask],0)
+            if comp.size[0] != self.image_size:
+                comp = tf.resize(comp, [self.image_size, self.image_size])
+                mask = tf.resize(mask, [self.image_size, self.image_size])
+                real = tf.resize(real, [self.image_size,self.image_size])
+            
+            comp = self.transforms(comp)
+            mask = tf.to_tensor(mask)
+            real = self.transforms(real)
+
+            inputs=torch.cat([comp,mask],0)
+            found = True
+          except FileNotFoundError:
+            print(f"file with index {index} not found")
+            index += 1
         
         return {'inputs': inputs, 'comp': comp, 'real': real,'img_path':path,'mask':mask}
 

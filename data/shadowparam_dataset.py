@@ -386,9 +386,9 @@ class ShadowParamDataset(BaseDataset):
 
         birdy['param'] = torch.FloatTensor(np.array(shadow_param))
 
-        comp = birdy['C']
-        mask = birdy['instancemask']
-        real = birdy['A']
+        #comp = birdy['C']
+        #mask = birdy['instancemask']
+        #real = birdy['A']
 
         comp = self.transforms(comp)
         mask = tf.to_tensor(mask)
@@ -397,7 +397,7 @@ class ShadowParamDataset(BaseDataset):
         inputs=torch.cat([comp,mask],0)
 
         #return birdy
-        return {'inputs': inputs, 'comp': comp, 'real': real,'img_path':path,'mask':mask}
+        return {'inputs': inputs, 'comp': comp, 'real': real,'img_path':birdy['im_list']+"_"+str(index),'mask':mask}
 
     def __len__(self):
         return self.data_size

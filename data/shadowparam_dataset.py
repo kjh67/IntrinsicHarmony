@@ -14,7 +14,7 @@ import time
 import torchvision.transforms.functional as TF
 import torch.nn.functional as F
 import itertools
-
+from copy import deepcopy
 
 ######'dir_A': shadowimage
 ######'dir_B': shadowmask
@@ -151,6 +151,12 @@ def generate_training_pairs(newwh, shadow_image, deshadowed_image, instance_mask
 
             fg_instance = Image.fromarray(np.uint8(fg_instance), mode='L')
             fg_shadow = Image.fromarray(np.uint8(fg_shadow), mode='L')
+
+            fg_instance_orig = deepcopy(fg_instance)
+            fg_shadow_orig = deepcopy(fg_shadow)
+            fg_instance_boxes_orig = deepcopy(fg_instance_boxes)
+            fg_shadow_boxes_orig = deepcopy(fg_shadow_boxes)
+
            
             ####obtaining bbox area of foreground object
             fg_instance_box_areas = np.zeros(np.shape(fg_shadow))
@@ -160,21 +166,20 @@ def generate_training_pairs(newwh, shadow_image, deshadowed_image, instance_mask
                 fg_shadow_box_areas = bbox_to_mask(fg_shadow_boxes[i],fg_shadow_box_areas)
             fg_instance_box_areas = Image.fromarray(np.uint8(fg_instance_box_areas),mode='L')
             fg_shadow_box_areas = Image.fromarray(np.uint8(fg_shadow_box_areas),mode='L')
-            
 
             jitter = v2.ColorJitter(brightness=.5)
             jittered_imgs = [jitter(deshadowed_image) for _ in range(3)]
 
             for jittered_img in jittered_imgs:
                 # Duplicated birdy appends
-                birdy_fg_instances.append(fg_instance)
-                birdy_fg_shadows.append(fg_shadow)
-                birdy_instance_boxes.append(torch.IntTensor(np.array(fg_instance_boxes)))
-                birdy_shadow_boxes.append(torch.IntTensor(np.array(fg_shadow_boxes)))
+                birdy_fg_instances.append(fg_instance_orig)
+                birdy_fg_shadows.append(fg_shadow_orig)
+                birdy_instance_boxes.append(torch.IntTensor(np.array(fg_instance_boxes_orig)))
+                birdy_shadow_boxes.append(torch.IntTensor(np.array(fg_shadow_boxes_orig)))
                 birdy_im_lists.append(imname_list)
                 
-                birdy_shadow_box_areas.append(fg_shadow_box_areas)
-                birdy_instance_box_areas.append(fg_instance_box_areas)
+                birdy_shadow_box_areas.append(deepcopy(fg_shadow_box_areas))
+                birdy_instance_box_areas.append(deepcopy(fg_instance_box_areas))
 
 
                 new_shadow_free_image = jittered_img * (np.tile(np.expand_dims(np.array(fg_shadow_new) / 255, -1), (1, 1, 3))) + \

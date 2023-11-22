@@ -376,11 +376,6 @@ class ShadowParamDataset(BaseDataset):
             birdy[k] = self.transformB(im)
 
 
-        for i in ['A','C','B','instancemask', 'bg_instance', 'bg_shadow', 'edge','fg_instance_box', 'fg_shadow_box', 'fg_instance_box_area', 'fg_shadow_box_area']:
-            if i in birdy:
-                birdy[i] = (birdy[i] - 0.5)*2
-
-
         h = birdy['A'].size()[1]
         w = birdy['A'].size()[2]
         #if not self.opt.no_crop:

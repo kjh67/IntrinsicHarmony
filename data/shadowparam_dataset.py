@@ -1,5 +1,5 @@
 import os.path
-import torchvision.transforms as transforms
+import torchvision.transforms as transforms, v2
 from data.base_dataset import BaseDataset, get_transform
 from data.image_folder import make_dataset
 from PIL import Image,ImageChops
@@ -167,7 +167,7 @@ def generate_training_pairs(newwh, shadow_image, deshadowed_image, instance_mask
             birdy_shadow_box_areas.append(fg_shadow_box_areas)
             birdy_instance_box_areas.append(fg_instance_box_areas)
 
-            jitter = transforms.v2.ColorJitter(brightness=.5)
+            jitter = v2.ColorJitter(brightness=.5)
             jittered_imgs = [jitter(deshadowed_image) for _ in range(3)]
 
             for jittered_img in jittered_imgs:

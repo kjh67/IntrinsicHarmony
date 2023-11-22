@@ -172,7 +172,7 @@ def generate_training_pairs(newwh, shadow_image, deshadowed_image, instance_mask
                                                                     (1, 1, 3)))
 
             jitter = v2.ColorJitter(hue=0.3)
-            jittered_imgs = [jitter(Image.fromarray(new_shadow_free_image)) for _ in range(3)]
+            jittered_imgs = [jitter(Image.fromarray(np.uint8(new_shadow_free_image))) for _ in range(3)]
 
             for jittered_img in jittered_imgs:
                 # Duplicated birdy appends

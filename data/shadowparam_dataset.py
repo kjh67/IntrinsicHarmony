@@ -172,7 +172,7 @@ def generate_training_pairs(newwh, shadow_image, deshadowed_image, instance_mask
                                                                     (1, 1, 3)))
 
             jitter = v2.ColorJitter(hue=0.3)
-            jittered_imgs = [jitter(new_shadow_free_image) for _ in range(3)]
+            jittered_imgs = [jitter(Image.fromarray(new_shadow_free_image)) for _ in range(3)]
 
             for jittered_img in jittered_imgs:
                 # Duplicated birdy appends
@@ -185,7 +185,7 @@ def generate_training_pairs(newwh, shadow_image, deshadowed_image, instance_mask
                 birdy_shadow_box_areas.append(deepcopy(fg_shadow_box_areas))
                 birdy_instance_box_areas.append(deepcopy(fg_instance_box_areas))
 
-                new_composite_image = jittered_img * (np.tile(np.expand_dims(np.array(fg_instance_orig) / 255, -1), (1, 1, 3))) + \
+                new_composite_image = np.asarray(jittered_img) * (np.tile(np.expand_dims(np.array(fg_instance_orig) / 255, -1), (1, 1, 3))) + \
                                         new_shadow_free_image * (1 - np.tile(np.expand_dims(np.array(fg_instance_orig) / 255, -1),
                                                                     (1, 1, 3)))
                

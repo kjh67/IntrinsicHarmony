@@ -19,7 +19,7 @@ from data.base_dataset import BaseDataset, get_transform
 from data.image_folder import make_dataset
 from PIL import Image
 import numpy as np
-import torchvision.transforms as transforms
+import torchvision.transforms as transforms, v2
 from util import util
 
 class TestDataset(BaseDataset):

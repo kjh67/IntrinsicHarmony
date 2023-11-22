@@ -167,28 +167,31 @@ def generate_training_pairs(newwh, shadow_image, deshadowed_image, instance_mask
             birdy_shadow_box_areas.append(fg_shadow_box_areas)
             birdy_instance_box_areas.append(fg_instance_box_areas)
 
+            jitter = transforms.v2.ColorJitter(brightness=.5)
+            jittered_imgs = [jitter(deshadowed_image) for _ in range(3)]
 
+            for jittered_img in jittered_imgs:
+                new_shadow_free_image = jittered_img * (np.tile(np.expand_dims(np.array(fg_shadow_new) / 255, -1), (1, 1, 3))) + \
+                                        shadow_image * (1 - np.tile(np.expand_dims(np.array(fg_shadow_new) / 255, -1),
+                                                                    (1, 1, 3)))
 
-            new_shadow_free_image = deshadowed_image * (np.tile(np.expand_dims(np.array(fg_shadow_new) / 255, -1), (1, 1, 3))) + \
-                                    shadow_image * (1 - np.tile(np.expand_dims(np.array(fg_shadow_new) / 255, -1),
-                                                                (1, 1, 3)))
+                birdy_deshadoweds.append(Image.fromarray(np.uint8(new_shadow_free_image), mode='RGB'))
+                birdy_shadoweds.append(Image.fromarray(np.uint8(shadow_image), mode='RGB'))
 
-            birdy_deshadoweds.append(Image.fromarray(np.uint8(new_shadow_free_image), mode='RGB'))
-            birdy_shadoweds.append(Image.fromarray(np.uint8(shadow_image), mode='RGB'))
+                bg_instance = Image.fromarray(np.uint8(bg_instance),mode='L')
+                bg_shadow = Image.fromarray(np.uint8(bg_shadow), mode='L')
+                birdy_bg_shadows.append(bg_shadow)
+                birdy_bg_instances.append(bg_instance)
 
-            bg_instance = Image.fromarray(np.uint8(bg_instance),mode='L')
-            bg_shadow = Image.fromarray(np.uint8(bg_shadow), mode='L')
-            birdy_bg_shadows.append(bg_shadow)
-            birdy_bg_instances.append(bg_instance)
+                birdy_shadowparas.append(shadow_param)
+                birdy_edges.append(fg_shadow_edge)
+                birdy_shadow_object_ratio.append(shadow_object_ratio)
+                fg_instance = []
+                fg_shadow = []
+                bg_instance = []
+                bg_shadow = []
+                fg_shadow_add = []
 
-            birdy_shadowparas.append(shadow_param)
-            birdy_edges.append(fg_shadow_edge)
-            birdy_shadow_object_ratio.append(shadow_object_ratio)
-            fg_instance = []
-            fg_shadow = []
-            bg_instance = []
-            bg_shadow = []
-            fg_shadow_add = []
     return birdy_deshadoweds, birdy_shadoweds,  birdy_fg_instances, birdy_fg_shadows,  birdy_bg_instances, \
            birdy_bg_shadows,birdy_edges, birdy_shadowparas, birdy_shadow_object_ratio, birdy_instance_boxes, birdy_shadow_boxes, birdy_instance_box_areas, birdy_shadow_box_areas, birdy_im_lists
 
@@ -196,6 +199,10 @@ def generate_training_pairs(newwh, shadow_image, deshadowed_image, instance_mask
 
 class ShadowParamDataset(BaseDataset):
     def __init__(self, opt):
+        # Initalise seed to make consistent transformations
+        torch.manual_seed(5)
+        random.seed(5)
+
         self.opt = opt
         self.is_train = self.opt.isTrain
         self.root = opt.dataset_root
@@ -397,7 +404,7 @@ class ShadowParamDataset(BaseDataset):
         inputs=torch.cat([comp,mask],0)
 
         #return birdy
-        return {'inputs': inputs, 'comp': comp, 'real': real,'img_path':birdy['im_list']+"_"+str(index),'mask':mask}
+        return {'inputs': inputs, 'comp': comp, 'real': real,'img_path': str(index),'mask':mask}
 
     def __len__(self):
         return self.data_size

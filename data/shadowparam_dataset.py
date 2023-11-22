@@ -1,5 +1,6 @@
 import os.path
-import torchvision.transforms as transforms, v2
+import torchvision.transforms as transforms
+from torchvision.transforms import v2
 from data.base_dataset import BaseDataset, get_transform
 from data.image_folder import make_dataset
 from PIL import Image,ImageChops

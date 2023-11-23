@@ -12,13 +12,14 @@ from skimage import data, img_as_float
 from skimage.metrics import peak_signal_noise_ratio as psnr
 from skimage.metrics import mean_squared_error as mse
 from tqdm import tqdm
+import glob
 
 """parsing and configuration"""
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--phase', type=str, default='test', help='train or test ?')
-    parser.add_argument('--dataroot', type=str, default='', help='dataset_dir')
-    parser.add_argument('--result_root', type=str, default='', help='dataset_dir')
+    parser.add_argument('--shadow_result_root', type=str, default='', help='dataset_dir')
+    parser.add_argument('--harmony_result_root', type=str, default='', help='dataset_dir')
     parser.add_argument('--dataset_name', type=str, default='ihd', help='dataset_name')
     parser.add_argument('--evaluation_type', type=str, default="our", help='evaluation type')
     parser.add_argument('--ssim_window_size', type=int, default=11, help='ssim window size')
@@ -30,33 +31,34 @@ def main(dataset_name = None):
     IMAGE_SIZE = np.array([256,256])
     opt.dataset_name = dataset_name
     files = opt.dataroot+'/'+opt.phase+'.txt'
-    comp_paths = []
-    harmonized_paths = []
-    mask_paths = []
-    real_paths = []
-    with open(files,'r') as f:
-            for line in f.readlines():
-                name_str = line.rstrip()
-                if opt.evaluation_type == 'our':
-                    harmonized_path = os.path.join(opt.result_root,name_str.replace(".jpg", "_harmonized.jpg"))
-                    if os.path.exists(harmonized_path):
-                        real_path = os.path.join(opt.result_root,name_str.replace(".jpg", "_real.jpg"))
-                        mask_path = os.path.join(opt.result_root,name_str.replace(".jpg", "_mask.jpg"))
-                        comp_path = os.path.join(opt.result_root,name_str.replace(".jpg", "_comp.jpg"))
-                elif opt.evaluation_type == 'ori':
-                    comp_path = os.path.join(opt.dataroot, 'composite_images', line.rstrip())
-                    harmonized_path = comp_path
-                    if os.path.exists(comp_path):
-                        real_path = os.path.join(opt.dataroot,'real_images',line.rstrip())
-                        name_parts=real_path.split('_')
-                        real_path = real_path.replace(('_'+name_parts[-2]+'_'+name_parts[-1]),'.jpg')
-                        mask_path = os.path.join(opt.dataroot,'masks',line.rstrip())
-                        mask_path = mask_path.replace(('_'+name_parts[-1]),'.png')
+    comp_paths = glob.glob(opt.harmony_result_root+'/*_compy.jpg')
+    harmonized_paths = glob.glob(opt.shadow_result_root+'/*.jpg')
+    mask_paths = glob.glob(opt.harmony_result_root+'/*_mask.jpg')
+    real_paths = glob.glob(opt.harmony_result_root+'/*_real.jpg')
+    # with open(files,'r') as f:
+    #         for line in f.readlines():
+    #             name_str = line.rstrip()
+    #             if opt.evaluation_type == 'our':
+    #                 harmonized_path = os.path.join(opt.result_root,name_str.replace(".jpg", "_harmonized.jpg"))
+    #                 if os.path.exists(harmonized_path):
+    #                     real_path = os.path.join(opt.result_root,name_str.replace(".jpg", "_real.jpg"))
+    #                     mask_path = os.path.join(opt.result_root,name_str.replace(".jpg", "_mask.jpg"))
+    #                     comp_path = os.path.join(opt.result_root,name_str.replace(".jpg", "_comp.jpg"))
+    #             elif opt.evaluation_type == 'ori':
+    #                 comp_path = os.path.join(opt.dataroot, 'composite_images', line.rstrip())
+    #                 harmonized_path = comp_path
+    #                 if os.path.exists(comp_path):
+    #                     real_path = os.path.join(opt.dataroot,'real_images',line.rstrip())
+    #                     name_parts=real_path.split('_')
+    #                     real_path = real_path.replace(('_'+name_parts[-2]+'_'+name_parts[-1]),'.jpg')
+    #                     mask_path = os.path.join(opt.dataroot,'masks',line.rstrip())
+    #                     mask_path = mask_path.replace(('_'+name_parts[-1]),'.png')
 
-                real_paths.append(real_path)
-                mask_paths.append(mask_path)
-                comp_paths.append(comp_path)
-                harmonized_paths.append(harmonized_path)
+    #             real_paths.append(real_path)
+    #             mask_paths.append(mask_path)
+    #             comp_paths.append(comp_path)
+    #             harmonized_paths.append(harmonized_path)
+                
     count = 0
 
 

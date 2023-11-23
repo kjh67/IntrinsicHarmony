@@ -171,6 +171,9 @@ def generate_training_pairs(newwh, shadow_image, deshadowed_image, instance_mask
                                         shadow_image * (1 - np.tile(np.expand_dims(np.array(fg_shadow_new) / 255, -1),
                                                                     (1, 1, 3)))
 
+            """
+            Jitter v1 hue
+            """
             jitter = v2.ColorJitter(hue=0.3)
             jittered_imgs = [jitter(Image.fromarray(np.uint8(new_shadow_free_image))) for _ in range(3)]
 

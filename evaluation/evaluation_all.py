@@ -30,9 +30,8 @@ def main(dataset_name = None):
     cuda = True if torch.cuda.is_available() else False
     IMAGE_SIZE = np.array([256,256])
     opt.dataset_name = dataset_name
-    files = opt.dataroot+'/'+opt.phase+'.txt'
-    comp_paths = glob.glob(opt.harmony_result_root+'/*_compy.jpg')
-    harmonized_paths = glob.glob(opt.shadow_result_root+'/*.jpg')
+    comp_paths = glob.glob(opt.harmony_result_root+'/*_comp.jpg')
+    harmonized_paths = glob.glob(opt.shadow_result_root+'/*.png')
     mask_paths = glob.glob(opt.harmony_result_root+'/*_mask.jpg')
     real_paths = glob.glob(opt.harmony_result_root+'/*_real.jpg')
     # with open(files,'r') as f:

@@ -12,6 +12,7 @@ from skimage import data, img_as_float
 from skimage.metrics import peak_signal_noise_ratio as psnr
 from skimage.metrics import mean_squared_error as mse
 from tqdm import tqdm
+import glob
 
 """parsing and configuration"""
 def parse_args():
@@ -128,7 +129,7 @@ def main(dataset_name = None):
     return mse_scores_mu,fmse_scores_mu, psnr_scores_mu,fpsnr_scores_mu
 
 def generstr(dataset_name='ALL'): 
-    datasets = ['HCOCO','HAdobe5k','HFlickr','Hday2night','IHD']
+    datasets = ['HAdobe5k']
     if dataset_name == 'newALL':
         datasets = ['HCOCO','HAdobe5k','HFlickr','Hday2night','HVIDIT','newIHD']
     for i, item in enumerate(datasets):

@@ -173,7 +173,7 @@ def generate_training_pairs(newwh, shadow_image, deshadowed_image, instance_mask
 
             """
             Jitter blue
-            Hello this is Sulekha testing git
+            Testing 2, want to push directlyyyy
             """
             jitter =  v2.GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 5.))
             jittered_imgs = [jitter(Image.fromarray(np.uint8(new_shadow_free_image))) for _ in range(3)]

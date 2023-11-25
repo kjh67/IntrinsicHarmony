@@ -15,7 +15,7 @@ import torchvision.transforms.functional as TF
 import torch.nn.functional as F
 import itertools
 from copy import deepcopy
-import WBEmulator as wbAug
+import data.WBEmulator as wbAug
 
 wbColorAug = wbAug.WBEmulator()
 

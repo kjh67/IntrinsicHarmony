@@ -22,19 +22,19 @@ from os.path import splitext, split, basename, join, exists
 import shutil
 from datetime import datetime
 import pickle
-import imresize as resize
+import data.imresize as resize
 
 
 class WBEmulator:
   def __init__(self):
     # training encoded features
-    self.features = np.load('params/features.npy')
+    self.features = np.load('data/params/features.npy')
     # mapping functions to emulate WB effects
-    self.mappingFuncs = np.load('params/mappingFuncs.npy')
+    self.mappingFuncs = np.load('data/params/mappingFuncs.npy')
     # weight matrix for histogram encoding
-    self.encoderWeights = np.load('params/encoderWeights.npy')
+    self.encoderWeights = np.load('data/params/encoderWeights.npy')
     # bias vector for histogram encoding
-    self.encoderBias = np.load('params/encoderBias.npy')
+    self.encoderBias = np.load('data/params/encoderBias.npy')
     self.h = 60  # histogram bin width
     self.K = 25  # K value for nearest neighbor searching
     self.sigma = 0.25  # fall off factor for KNN

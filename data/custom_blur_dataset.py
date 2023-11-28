@@ -79,41 +79,6 @@ class BlurEstimation(nn.Module):
         x = self.fc(x)
         return x
 
-def resize_pos(bbox, src_size,tar_size):
-    x1,y1,x2,y2 = bbox
-    w1=src_size[0]
-    h1=src_size[1]
-    w2=tar_size[0]
-    h2=tar_size[1]
-    y11= int((h2/h1)*y1)
-    x11=int((w2/w1)*x1)
-    y22=int((h2/h1)*y2)
-    x22=int((w2/w1)*x2)
-    return [x11, y11, x22, y22]
-
-def mask_to_bbox(mask, specific_pixels, new_w, new_h):
-    #[w,h,c]
-    w,h = np.shape(mask)[:2]
-    valid_index = np.argwhere(mask==specific_pixels)[:,:2]
-    if np.shape(valid_index)[0] < 1:
-        x_left = 0
-        x_right = 0
-        y_bottom = 0
-        y_top = 0
-    else:
-        x_left = np.min(valid_index[:,0])
-        x_right = np.max(valid_index[:,0])
-        y_bottom = np.min(valid_index[:,1])
-        y_top = np.max(valid_index[:,1])
-    origin_box = [x_left, y_bottom, x_right, y_top]
-    resized_box = resize_pos(origin_box, [w,h], [new_w, new_h])
-    return resized_box
-
-def bbox_to_mask(box,mask_plain):
-    mask_plain[box[0]:box[2], box[1]:box[3]] = 255
-    return mask_plain
-
-
 
 class CustomBlurDataset(BaseDataset):
     """A template dataset class for you to implement custom datasets."""
@@ -202,9 +167,9 @@ class CustomBlurDataset(BaseDataset):
         #print(f'mask path: {mask_path}')
         #print(f'target_path: {target_path}')
 
-        comp = Image.open(path).convert('RGB')
-        real = Image.open(target_path).convert('RGB')
-        mask = Image.open(mask_path).convert('1')
+        comp = Image.open(path).convert('RGB').resize((256,256), Image.NEAREST)
+        real = Image.open(target_path).convert('RGB').resize((256,256), Image.NEAREST)
+        mask = Image.open(mask_path).convert('1').resize((256,256), Image.NEAREST)
 
         # if np.random.rand() > 0.5 and self.isTrain:
         #     comp, mask, real = tf.hflip(comp), tf.hflip(mask), tf.hflip(real)

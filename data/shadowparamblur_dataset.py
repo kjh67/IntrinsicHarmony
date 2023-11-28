@@ -19,6 +19,8 @@ import data.WBEmulator as wbAug
 import torch, torch.nn as nn
 
 wbColorAug = wbAug.WBEmulator()
+index = 0
+
 
 ######'dir_A': shadowimage
 ######'dir_B': shadowmask
@@ -39,18 +41,14 @@ class BlurEstimation(nn.Module):
 
         self.conv1 = nn.Sequential(
                 nn.Conv2d(64, 128, kernel_size=3, padding=1),
-            # nn.Conv2d(128, 128, kernel_size=3, padding=1),
                 nn.BatchNorm2d(128),
-
                 nn.LeakyReLU(inplace=True),
                 nn.MaxPool2d(2)
         )
 
         self.conv2 = nn.Sequential(
                 nn.Conv2d(128, 256, kernel_size=3, padding=1),
-            #  nn.Conv2d(256, 256, kernel_size=3, padding=1),
-                            nn.BatchNorm2d(256),
-
+                nn.BatchNorm2d(256),
                 nn.LeakyReLU(inplace=True),
                 nn.MaxPool2d(2)
         )
@@ -118,6 +116,7 @@ def bbox_to_mask(box,mask_plain):
 def generate_training_pairs(newwh, shadow_image, deshadowed_image, instance_mask, shadow_mask, new_shadow_mask, shadow_param,imname_list, is_train, \
                             birdy_deshadoweds, birdy_shadoweds,  birdy_fg_instances, birdy_fg_shadows, \
                             birdy_bg_instances,  birdy_bg_shadows, birdy_edges, birdy_shadowparas, birdy_shadow_object_ratio, birdy_instance_boxes, birdy_shadow_boxes, birdy_instance_box_areas, birdy_shadow_box_areas,birdy_im_lists, blur_model, opt, index):
+    global index
 
     ####producing training/test pairs according pixel value
     instance_pixels_a = np.unique(np.sort(instance_mask[instance_mask>0]))
@@ -231,11 +230,11 @@ def generate_training_pairs(newwh, shadow_image, deshadowed_image, instance_mask
             Jitter blue
             Testing 2, want to push directlyyyy
             """
-            jitter =  v2.GaussianBlur(kernel_size=(25, 25), sigma=(0., 5.))
+            jitter =  v2.GaussianBlur(kernel_size=(25, 25), sigma=(.1, 5.))
             jittered_imgs = [jitter(Image.fromarray(np.uint8(new_shadow_free_image))) for _ in range(3)]
             #outImgs, wb_pf = wbColorAug.generateWbsRGB(Image.fromarray(np.uint8(new_shadow_free_image)), 3)
 
-            for jittered_img in outImgs:
+            for jittered_img in jittered_imgs:
                 # Duplicated birdy appends
                 birdy_fg_instances.append(fg_instance_orig)
                 birdy_fg_shadows.append(fg_shadow_orig)
@@ -247,22 +246,30 @@ def generate_training_pairs(newwh, shadow_image, deshadowed_image, instance_mask
                 birdy_instance_box_areas.append(deepcopy(fg_instance_box_areas))
 
                 artifically_blured_foreground = None
-                with torch.no_grad:
-                    sigma = blur_model(jittered_img)
+                with torch.no_grad():
+                    print(np.asarray(jittered_img).shape)
+                    reshaped_image = np.float32((np.asarray(jittered_img)).transpose((-1, 0, 1)))    
+                    reshaped_image = torch.tensor(reshaped_image).unsqueeze(0) / 255
+
+                    sigma = float(blur_model(reshaped_image).detach().numpy()[0][0])
+                    print(sigma)
                     kernelsize = int(sigma*3)
                     if not kernelsize%2: kernelsize+=1
-                    jitter =  v2.GaussianBlur(sigma, sigma=(0., 5.))
-                    artifically_blured_foreground = jitter(deshadowed_image)
                     
+                    if sigma > 0.:
+                      jitter =  v2.GaussianBlur(kernel_size=(kernelsize, kernelsize), sigma=sigma)
+                      artifically_blured_foreground = jitter(new_shadow_free_image)
+                    else:
+                      artifically_blured_foreground = new_shadow_free_image
 
                     image_dir = os.path.join(opt.results_dir, opt.name, '%s_%s' % (opt.phase, opt.epoch))
                     image_dir = os.path.join(image_dir, "/images")
 
-                    pre_blur = np.asarray(deshadowed_image) * (np.tile(np.expand_dims(np.array(fg_instance_orig) / 255, -1), (1, 1, 3))) + \
+                    pre_blur = np.asarray(new_shadow_free_image) * (np.tile(np.expand_dims(np.array(fg_instance_orig) / 255, -1), (1, 1, 3))) + \
                                         jittered_img * (1 - np.tile(np.expand_dims(np.array(fg_instance_orig) / 255, -1),
                                                                     (1, 1, 3)))
                     pre_blur_im = Image.fromarray(np.uint8(pre_blur))
-                    pre_blur_im.save(image_dir+"/"+str(index)+"_preblur.jpg")
+                    pre_blur_im.save("/content/drive/MyDrive/IntrinsicHarmony/results/iih_base_lt_gd_allihd/test_latest/images/"+str(index)+"_preblur.jpg")
 
 
 
@@ -287,6 +294,7 @@ def generate_training_pairs(newwh, shadow_image, deshadowed_image, instance_mask
                 bg_instance = []
                 bg_shadow = []
                 fg_shadow_add = []
+                index += 1
 
     return birdy_deshadoweds, birdy_shadoweds,  birdy_fg_instances, birdy_fg_shadows,  birdy_bg_instances, \
            birdy_bg_shadows,birdy_edges, birdy_shadowparas, birdy_shadow_object_ratio, birdy_instance_boxes, birdy_shadow_boxes, birdy_instance_box_areas, birdy_shadow_box_areas, birdy_im_lists
@@ -355,7 +363,6 @@ class ShadowParamBlurDataset(BaseDataset):
         self.birdy_instance_box_areas=[]
         self.birdy_shadow_box_areas=[]
         self.birdy_imlists=[]
-        index = 0
         for imname_list in self.imname:
             imname = imname_list[0]
             A_img = Image.open(os.path.join(self.dir_A,imname)).convert('RGB').resize((self.opt.crop_size, self.opt.crop_size),Image.NEAREST)

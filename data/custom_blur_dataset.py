@@ -184,12 +184,13 @@ class CustomBlurDataset(BaseDataset):
             sigma = float(self.blur_model(reshaped_image).detach().numpy()[0][0])
             kernelsize = int(sigma*3)
             if not kernelsize%2: kernelsize+= 1
-            adjustment = v2.GaussianBlur(sigma, sigma=(0.,5.))
-            # only apply adjustment to the foreground, then put back into the background
-            blurredcomp = adjustment(comp * np.tile(np.expand_dims(np.array(mask)/255, -1), (1,1,3))) \
-                + comp * (1 - np.tile(np.expand_dims(np.array(mask)/255, -1), (1,1,3)))
-            # overwrite the raw composite image with the one with blurred foreground
-        comp = Image.fromarray(np.uint8(blurredcomp), mode='RGB')
+            if sigma>0:
+                adjustment = v2.GaussianBlur(sigma, sigma=(0.,5.))
+                # only apply adjustment to the foreground, then put back into the background
+                blurredcomp = adjustment(comp * np.tile(np.expand_dims(np.array(mask)/255, -1), (1,1,3))) \
+                    + comp * (1 - np.tile(np.expand_dims(np.array(mask)/255, -1), (1,1,3)))
+                # overwrite the raw composite image with the one with blurred foreground
+                comp = Image.fromarray(np.uint8(blurredcomp), mode='RGB')
         print("BLUR APPLIED")
 
         if comp.size[0] != self.image_size:

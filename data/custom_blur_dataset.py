@@ -185,7 +185,7 @@ class CustomBlurDataset(BaseDataset):
             kernelsize = int(sigma*3)
             if not kernelsize%2: kernelsize+= 1
             if sigma>0:
-                adjustment = v2.GaussianBlur(sigma, sigma=(0.,5.))
+                adjustment = v2.GaussianBlur(kernel_size=(kernelsize,kernelsize), sigma=sigma)
                 # only apply adjustment to the foreground, then put back into the background
                 blurredcomp = adjustment(comp * np.tile(np.expand_dims(np.array(mask)/255, -1), (1,1,3))) \
                     + comp * (1 - np.tile(np.expand_dims(np.array(mask)/255, -1), (1,1,3)))

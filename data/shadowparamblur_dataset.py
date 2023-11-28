@@ -299,7 +299,8 @@ class ShadowParamBlurDataset(BaseDataset):
         torch.manual_seed(5)
         random.seed(5)
 
-        blur_model = torch.load(opt.blur_path)
+        blur_model = BlurEstimation()
+        blur_model.load_state_dict(torch.load(opt.blur_path))
         blur_model.eval()
 
         self.opt = opt

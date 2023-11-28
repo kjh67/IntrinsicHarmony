@@ -258,7 +258,7 @@ def generate_training_pairs(newwh, shadow_image, deshadowed_image, instance_mask
                     
                     if sigma > 0.:
                       jitter =  v2.GaussianBlur(kernel_size=(kernelsize, kernelsize), sigma=sigma)
-                      artifically_blured_foreground = jitter(new_shadow_free_image)
+                      artifically_blured_foreground = jitter(Image.fromarray(np.uint8(deshadowed_image)))
                     else:
                       artifically_blured_foreground = new_shadow_free_image
 

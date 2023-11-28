@@ -221,7 +221,7 @@ class CustomBlurDataset(BaseDataset):
             blurredcomp = adjustment(comp * np.tile(np.expand_dims(np.array(mask)/255, -1), (1,1,3))) \
                 + comp * (1 - np.tile(np.expand_dims(np.array(mask)/255, -1), (1,1,3)))
             # overwrite the raw composite image with the one with blurred foreground
-            comp = blurredcomp
+        comp = Image.fromarray(np.uint8(blurredcomp), mode='RGB')
 
         if comp.size[0] != self.image_size:
             comp = tf.resize(comp, [self.image_size, self.image_size])

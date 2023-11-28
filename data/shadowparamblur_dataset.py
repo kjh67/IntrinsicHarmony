@@ -234,7 +234,14 @@ def generate_training_pairs(newwh, shadow_image, deshadowed_image, instance_mask
             jittered_imgs = [jitter(Image.fromarray(np.uint8(new_shadow_free_image))) for _ in range(3)]
             #outImgs, wb_pf = wbColorAug.generateWbsRGB(Image.fromarray(np.uint8(new_shadow_free_image)), 3)
 
-            for jittered_img in jittered_imgs:
+            for i in range(3):
+                background_sigma = random.uniform(0.01, 5.)
+                print(background_sigma)
+                jitter =  v2.GaussianBlur(kernel_size=(25, 25), sigma=background_sigma)
+                jittered_img = jitter(Image.fromarray(np.uint8(new_shadow_free_image)))
+
+                real_blured_image = jitter(Image.fromarray(np.uint8(shadow_image), mode="RGB"))
+
                 # Duplicated birdy appends
                 birdy_fg_instances.append(fg_instance_orig)
                 birdy_fg_shadows.append(fg_shadow_orig)
@@ -279,7 +286,7 @@ def generate_training_pairs(newwh, shadow_image, deshadowed_image, instance_mask
                
 
                 birdy_deshadoweds.append(Image.fromarray(np.uint8(new_composite_image), mode='RGB'))
-                birdy_shadoweds.append(Image.fromarray(np.uint8(shadow_image), mode='RGB'))
+                birdy_shadoweds.append(real_blured_image)
 
                 bg_instance = Image.fromarray(np.uint8(bg_instance),mode='L')
                 bg_shadow = Image.fromarray(np.uint8(bg_shadow), mode='L')

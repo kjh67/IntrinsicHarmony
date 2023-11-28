@@ -187,12 +187,11 @@ class CustomBlurDataset(BaseDataset):
             if sigma>0:
                 adjustment = v2.GaussianBlur(kernel_size=(kernelsize,kernelsize), sigma=sigma)
                 # only apply adjustment to the foreground, then put back into the background
-                blurredcomp = adjustment(comp * np.tile(np.expand_dims(np.array(mask)/255, -1), (1,1,3))) \
-                    + comp * (1 - np.tile(np.expand_dims(np.array(mask)/255, -1), (1,1,3)))
+                blurredcomp = adjustment(comp)# * np.tile(np.expand_dims(np.array(mask)/255, -1), (1,1,3))) \
+                #    + comp * (1 - np.tile(np.expand_dims(np.array(mask)/255, -1), (1,1,3)))
                 # overwrite the raw composite image with the one with blurred foreground
-                blurredcomp = Image.fromarray(np.uint8(blurredcomp), mode='RGB')
-                blurredcomp.save('/content/drive/MyDrive/Colab Notebooks/IntrinsicHarmony/results/iih_base_lt_gd_allihd/test_latest/images/'+str(index)+'blurred.jpg')
                 comp = Image.fromarray(np.uint8(blurredcomp), mode='RGB')
+                comp.save('/content/drive/MyDrive/Colab Notebooks/IntrinsicHarmony/results/iih_base_lt_gd_allihd/test_latest/images/'+str(index)+'blurred.jpg')
 
         if comp.size[0] != self.image_size:
             comp = tf.resize(comp, [self.image_size, self.image_size])

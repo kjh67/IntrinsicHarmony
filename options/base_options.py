@@ -78,6 +78,7 @@ class BaseOptions():
         parser.add_argument('--NUM_SHARDS', type=int, default=1, help='NUM_SHARDS')
         parser.add_argument('--DIST_BACKEND', type=str, default='nccl', help='DIST_BACKEND')
         parser.add_argument('--RNG_SEED', type=int, default=1, help='NUM_SHARDS')
+        parser.add_argument('--blur_path', type=str)
 
         self.initialized = True
         return parser

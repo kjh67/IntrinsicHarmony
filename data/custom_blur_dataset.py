@@ -22,7 +22,8 @@ import numpy as np
 import torchvision.transforms as transforms
 from util import util
 import glob
-import cv2 as v2
+from torchvision.transforms import v2
+import torch.nn as nn
 
 
 

@@ -214,7 +214,9 @@ class CustomBlurDataset(BaseDataset):
         # then apply the same blur to the right region of the foreground
         with torch.no_grad():
             print("ABOUT TO APPLY BLUR")
-            sigma = self.blur_model(comp).detach().numpy()[0][0]
+            reshaped_image = np.float32((np.asarray(comp)).transpose((-1, 0, 1)))    
+            reshaped_image = torch.tensor(reshaped_image).unsqueeze(0) / 255
+            sigma = float(self.blur_model(reshaped_image).detach().numpy()[0][0])
             kernelsize = int(sigma*3)
             if not kernelsize%2: kernelsize+= 1
             adjustment = v2.GaussianBlur(sigma, sigma=(0.,5.))

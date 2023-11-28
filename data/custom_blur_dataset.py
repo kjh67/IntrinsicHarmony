@@ -213,7 +213,7 @@ class CustomBlurDataset(BaseDataset):
 
         # MAKE BLUR ADJUSTMENT: need to get the blur of the background
         # then apply the same blur to the right region of the foreground
-        with torch.no_grad:
+        with torch.no_grad():
             sigma = self.blur_model(comp)
             kernelsize = int(sigma*3)
             if not kernelsize%2: kernelsize+= 1

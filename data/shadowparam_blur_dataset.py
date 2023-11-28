@@ -117,7 +117,7 @@ def bbox_to_mask(box,mask_plain):
 
 def generate_training_pairs(newwh, shadow_image, deshadowed_image, instance_mask, shadow_mask, new_shadow_mask, shadow_param,imname_list, is_train, \
                             birdy_deshadoweds, birdy_shadoweds,  birdy_fg_instances, birdy_fg_shadows, \
-                            birdy_bg_instances,  birdy_bg_shadows, birdy_edges, birdy_shadowparas, birdy_shadow_object_ratio, birdy_instance_boxes, birdy_shadow_boxes, birdy_instance_box_areas, birdy_shadow_box_areas,birdy_im_lists, blur_model):
+                            birdy_bg_instances,  birdy_bg_shadows, birdy_edges, birdy_shadowparas, birdy_shadow_object_ratio, birdy_instance_boxes, birdy_shadow_boxes, birdy_instance_box_areas, birdy_shadow_box_areas,birdy_im_lists, blur_model, opt):
 
     ####producing training/test pairs according pixel value
     instance_pixels_a = np.unique(np.sort(instance_mask[instance_mask>0]))
@@ -253,6 +253,16 @@ def generate_training_pairs(newwh, shadow_image, deshadowed_image, instance_mask
                     if not kernelsize%2: kernelsize+=1
                     jitter =  v2.GaussianBlur(sigma, sigma=(0., 5.))
                     artifically_blured_foreground = jitter(deshadowed_image)
+                    
+
+                    image_dir = os.path.join(opt.results_dir, opt.name, '%s_%s' % (opt.phase, opt.epoch))
+                    image_dir = os.path.join(image_dir, "/images")
+
+                    pre_blur = np.asarray(deshadowed_image) * (np.tile(np.expand_dims(np.array(fg_instance_orig) / 255, -1), (1, 1, 3))) + \
+                                        jittered_img * (1 - np.tile(np.expand_dims(np.array(fg_instance_orig) / 255, -1),
+                                                                    (1, 1, 3)))
+                    pre_blur_im = Image.fromarray(np.uint8(pre_blur))
+                    pre_blur_im.save(image_dir)
 
 
 
@@ -374,7 +384,7 @@ class ShadowParamDataset(BaseDataset):
                 self.opt.crop_size, A_img_array, C_img_arry, instance_array, shadow_array, new_mask_array, shadow_param,imname_list, self.is_train, \
                 self.birdy_deshadoweds, self.birdy_shadoweds,  self.birdy_fg_instances, self.birdy_fg_shadows, \
                 self.birdy_bg_instances,  self.birdy_bg_shadows, self.birdy_edges, self.birdy_shadow_params, self.birdy_shadow_object_ratio, \
-                self.birdy_instance_boxes, self.birdy_shadow_boxes, self.birdy_instance_box_areas, self.birdy_shadow_box_areas,self.birdy_imlists, blur_model)
+                self.birdy_instance_boxes, self.birdy_shadow_boxes, self.birdy_instance_box_areas, self.birdy_shadow_box_areas,self.birdy_imlists, blur_model, opt)
 
            
         self.data_size = len(self.birdy_deshadoweds)

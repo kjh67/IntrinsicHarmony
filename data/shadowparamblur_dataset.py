@@ -293,7 +293,7 @@ def generate_training_pairs(newwh, shadow_image, deshadowed_image, instance_mask
 
 
 
-class ShadowParamDataset(BaseDataset):
+class ShadowParamBlurDataset(BaseDataset):
     def __init__(self, opt):
         # Initalise seed to make consistent transformations
         torch.manual_seed(5)

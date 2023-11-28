@@ -191,7 +191,7 @@ class CustomBlurDataset(BaseDataset):
                     + comp * (1 - np.tile(np.expand_dims(np.array(mask)/255, -1), (1,1,3)))
                 # overwrite the raw composite image with the one with blurred foreground
                 blurredcomp = Image.fromarray(np.uint8(blurredcomp), mode='RGB')
-                blurredcomp.save('/content/drive/MyDrive/IntrinsicHarmony/results/iih_base_lt_gd_allihd/test_latest/images/'+str(index)+'blurred.jpg')
+                blurredcomp.save('/content/drive/MyDrive/Colab Notebooks/IntrinsicHarmony/results/iih_base_lt_gd_allihd/test_latest/images/'+str(index)+'blurred.jpg')
                 comp = Image.fromarray(np.uint8(blurredcomp), mode='RGB')
 
         if comp.size[0] != self.image_size:

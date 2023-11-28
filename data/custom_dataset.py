@@ -23,7 +23,7 @@ import torchvision.transforms as transforms
 from util import util
 import glob
 
-class IhdDataset(BaseDataset):
+class CustomDataset(BaseDataset):
     """A template dataset class for you to implement custom datasets."""
     @staticmethod
     def modify_commandline_options(parser, is_train):

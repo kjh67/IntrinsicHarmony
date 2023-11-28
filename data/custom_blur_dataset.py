@@ -213,7 +213,8 @@ class CustomBlurDataset(BaseDataset):
         # MAKE BLUR ADJUSTMENT: need to get the blur of the background
         # then apply the same blur to the right region of the foreground
         with torch.no_grad():
-            sigma = self.blur_model(comp)
+            print("ABOUT TO APPLY BLUR")
+            sigma = self.blur_model(comp).detach().numpy()[0][0]
             kernelsize = int(sigma*3)
             if not kernelsize%2: kernelsize+= 1
             adjustment = v2.GaussianBlur(sigma, sigma=(0.,5.))
@@ -222,6 +223,7 @@ class CustomBlurDataset(BaseDataset):
                 + comp * (1 - np.tile(np.expand_dims(np.array(mask)/255, -1), (1,1,3)))
             # overwrite the raw composite image with the one with blurred foreground
         comp = Image.fromarray(np.uint8(blurredcomp), mode='RGB')
+        print("BLUR APPLIED")
 
         if comp.size[0] != self.image_size:
             comp = tf.resize(comp, [self.image_size, self.image_size])

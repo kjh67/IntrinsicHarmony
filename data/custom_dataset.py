@@ -66,7 +66,7 @@ class CustomDataset(BaseDataset):
         #                 self.image_paths.append(os.path.join(opt.dataset_root,'composite_images',line.rstrip()))
         #     print(self.image_paths)
         print('loading test file')
-        self.image_paths = glob.glob(opt.dataroot+'/composite_images/*')
+        self.image_paths = glob.glob(opt.dataset_root+'/composite_images/*')
         # self.imnames = [fname.split('/')[-1] for fname in self.files]
         # for imname in self.imnames:
         #             self.image_paths.append(os.path.join(opt.dataset_root,'composite_images',imname.rstrip()))

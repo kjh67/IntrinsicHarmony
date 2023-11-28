@@ -130,7 +130,6 @@ class CustomBlurDataset(BaseDataset):
         """
         parser.add_argument('--is_train', type=bool, default=True, help='whether in the training phase')
         parser.set_defaults(max_dataset_size=float("inf"), new_dataset_option=2.0)  # specify dataset-specific default values
-        parser.add_argument('--blur_path', type=str, default='', help='path to blur model paramters')
         return parser
 
     def __init__(self, opt):

@@ -25,7 +25,7 @@ import data.WBEmulator as wbAug
 
 wbColorAug = wbAug.WBEmulator()
 
-class IhdDataset(BaseDataset):
+class IhdwbDataset(BaseDataset):
     """A template dataset class for you to implement custom datasets."""
     @staticmethod
     def modify_commandline_options(parser, is_train):

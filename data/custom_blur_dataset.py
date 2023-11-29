@@ -178,20 +178,20 @@ class CustomBlurDataset(BaseDataset):
         # MAKE BLUR ADJUSTMENT: need to get the blur of the background
         # then apply the same blur to the right region of the foreground
         with torch.no_grad():
-            print("ABOUT TO APPLY BLUR")
             reshaped_image = np.float32((np.asarray(comp)).transpose((-1, 0, 1)))    
             reshaped_image = torch.tensor(reshaped_image).unsqueeze(0) / 255
             sigma = float(self.blur_model(reshaped_image).detach().numpy()[0][0])
             kernelsize = int(sigma*3)
             if not kernelsize%2: kernelsize+= 1
+            print(f"Blur parameter: {sigma}")
             if sigma>0:
-                adjustment = v2.GaussianBlur(sigma, sigma=(0.,5.))
+                adjustment = v2.GaussianBlur(kernel_size=(kernelsize,kernelsize), sigma=sigma)
                 # only apply adjustment to the foreground, then put back into the background
-                blurredcomp = adjustment(comp * np.tile(np.expand_dims(np.array(mask)/255, -1), (1,1,3))) \
-                    + comp * (1 - np.tile(np.expand_dims(np.array(mask)/255, -1), (1,1,3)))
+                blurredcomp = adjustment(comp)# * np.tile(np.expand_dims(np.array(mask)/255, -1), (1,1,3))) \
+                #    + comp * (1 - np.tile(np.expand_dims(np.array(mask)/255, -1), (1,1,3)))
                 # overwrite the raw composite image with the one with blurred foreground
                 comp = Image.fromarray(np.uint8(blurredcomp), mode='RGB')
-        print("BLUR APPLIED")
+                comp.save('/content/drive/MyDrive/Colab Notebooks/IntrinsicHarmony/results/iih_base_lt_gd_allihd/test_latest/images/'+str(index)+'blurred.jpg')
 
         if comp.size[0] != self.image_size:
             comp = tf.resize(comp, [self.image_size, self.image_size])

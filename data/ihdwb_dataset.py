@@ -69,7 +69,7 @@ class IhdwbDataset(BaseDataset):
         elif opt.isTrain==False:
             #self.real_ext='.jpg'
             print('loading test file')
-            self.trainfile = opt.dataset_root+'/test.txt'
+            self.trainfile = '/content/drive/MyDrive/MVP/test_reduced.txt'
             with open(self.trainfile,'r') as f:
                     for line in f.readlines():
                         self.image_paths.append(os.path.join(opt.dataset_root,'composite_images',line.rstrip()))
@@ -126,8 +126,12 @@ class IhdwbDataset(BaseDataset):
                 mask = tf.resize(mask, [self.image_size, self.image_size])
                 real = tf.resize(real, [self.image_size,self.image_size])
             
-            wb_im, wb_pf = wbColorAug.generateWbsRGB(Image.fromarray(np.uint8(comp)), 3)[oldindex]
-            comp = np.asarray(wb_im) * np.asarray(mask) + np.asarray(comp) * (1-np.asarray(mask))
+            wb_im, wb_pf = wbColorAug.generateWbsRGB(Image.fromarray(np.uint8(comp)), 3)
+            wb_im = wb_im[oldindex %3]
+
+            comp = np.asarray(wb_im) * (np.tile(np.expand_dims(np.array(mask) / 255, -1), (1, 1, 3))) + \
+                                        np.asarray(comp) * (1 - np.tile(np.expand_dims(np.array(mask) / 255, -1),
+                                                                    (1, 1, 3)))
             comp = Image.fromarray(np.uint8(comp), mode='RGB')
 
             comp = self.transforms(comp)
@@ -144,5 +148,5 @@ class IhdwbDataset(BaseDataset):
 
     def __len__(self):
         """Return the total number of images."""
-        return len(self.image_paths)
+        return len(self.image_paths) * 3
 
